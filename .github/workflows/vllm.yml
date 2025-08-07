@@ -38,8 +38,6 @@ jobs:
       test-matrix: |
         { include: [
           { config: "vllm_basic_correctness_test", shard: 1, num_shards: 1, runner: "linux.aws.a100" },
-          { config: "vllm_regression_test", shard: 1, num_shards: 1, runner: "linux.aws.a100" },
-          { config: "vllm_entrypoints_test_llm", shard: 1, num_shards: 1, runner: "linux.aws.a100" },
           { config: "vllm_basic_models_test", shard: 1, num_shards: 1, runner: "linux.aws.a100" },
         ]}
     secrets: inherit
@@ -59,4 +57,18 @@ jobs:
       runner_prefix: ${{ needs.get-label-type.outputs.label-type }}
       docker-image: ${{ needs.linux-jammy-cuda12_8-cudnn9-py3_12-gcc11-vllm-build-80.outputs.docker-image }}
       runner: linux.24xlarge.memory
+    secrets: inherit
+
+  linux-jammy-cuda12_8-cudnn9-py3_12-gcc11-vllm-test:
+    name: cuda12.8-py3.12-gcc11-sm80-vllm-test
+    uses: ./.github/workflows/_linux-test.yml
+    needs: [
+      linux-jammy-cuda12_8-cudnn9-py3_12-gcc11-vllm-build-80,
+      linux-jammy-cuda12_8-cudnn9-py3_12-gcc11-vllm-external-build-sm80
+    ]
+    with:
+      build-environment: linux-jammy-cuda12.8-py3.12-gcc11-sm80
+      docker-image: ${{ needs.linux-jammy-cuda12_8-cudnn9-py3_12-gcc11-vllm-build-80.outputs.docker-image }}
+      test-matrix: ${{ needs.linux-jammy-cuda12_8-cudnn9-py3_12-gcc11-vllm-build-80.outputs.test-matrix }}
+      additional-artifact-name: linux-jammy-cuda12.8-py3.12-gcc11-sm80-additional-build
     secrets: inherit
